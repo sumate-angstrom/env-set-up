@@ -121,7 +121,7 @@ var getAllRoots = async (drive, folderId, path, is_replace) => {
       if(is_replace){
         var begin = "# - begin -";
         var end = "# - end -";
-        dataStr = `${begin}\n${dataStr}\n${end}`;
+        dataStr = `${begin}\n${dataStr}\n${end}\n`;
       }
     }
     await fs.writeFile(path, dataStr);
@@ -138,10 +138,9 @@ var getExistFileData = async (path, download_data) => {
         var end = "# - end -";
         var dataStr = `${data.toString()}`;
         if (dataStr.indexOf(begin) < 0) {
-          dataStr = `${dataStr}\n${begin}\n${download_data}\n${end}`;
+          dataStr = `${dataStr}\n${begin}\n${download_data}\n${end}\n`;
         } else {
-          dataStr = dataStr.replace(dataStr.substring(dataStr.indexOf(begin), dataStr.indexOf(end) + end.length), download_data);
-          dataStr = `${begin}\n${dataStr}\n${end}`;
+          dataStr = dataStr.replace(dataStr.substring(dataStr.indexOf(begin), dataStr.indexOf(end) + end.length), `${begin}\n${download_data}\n${end}\n`);
         }
         return resolve(dataStr);
       }

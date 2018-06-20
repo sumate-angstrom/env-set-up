@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var setup_util = require('./setup_util');
+
+program
+  .command("set_up <drive_folder>")
+  .action((drive_folder, command) => {
+    setup_util(drive_folder);
+  })
+
+program.parse(process.argv);

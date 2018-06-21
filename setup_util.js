@@ -116,7 +116,7 @@ var getAllRoots = async (drive, folderId, path, is_replace) => {
     var download_data = await download(drive, folderId, path);
     var dataStr = "";
     if (fs.existsSync(path)){
-      await fs.copy(path, `${path}.${moment().format('DD-MM-YYYY_h:mm')}`);
+      await fs.copy(path, `${path}.${moment().format('YYYY-MM-DD_h:mm')}`);
     }
     if (fs.existsSync(path) && is_replace) {
       dataStr = await getExistFileData(path, download_data);

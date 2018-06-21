@@ -1,7 +1,8 @@
 const fs = require('fs-extra');
 const readline = require('readline');
 const { google } = require('googleapis');
-const async = require('async');
+const path_lib = require('path');
+const moment = require('moment');
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 const TOKEN_PATH = './credentials.json';
@@ -114,6 +115,9 @@ var getAllRoots = async (drive, folderId, path, is_replace) => {
     console.log(path);
     var download_data = await download(drive, folderId, path);
     var dataStr = "";
+    if (fs.existsSync(path)){
+      await fs.copy(path, `${path}.${moment().format('DD-MM-YYYY_h:mm')}`);
+    }
     if (fs.existsSync(path) && is_replace) {
       dataStr = await getExistFileData(path, download_data);
     } else {

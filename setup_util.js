@@ -3,9 +3,12 @@ const readline = require('readline');
 const { google } = require('googleapis');
 const path_lib = require('path');
 const moment = require('moment');
+const { exec } = require('child_process');
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 const TOKEN_PATH = './credentials.json';
+
+var username = "";
 
 var main = async (folder) => {
   var auth = await authen();
@@ -99,13 +102,16 @@ var searchMainFolder = async (drive, folderName) => {
 
 var getAllRoots = async (drive, folderId, path, is_replace) => {
   var files = await searchFilesInFolder(drive, folderId);
+  if (path == "/home" && files.length == 1) {
+    username = files[0].name;
+  }
   if (files.length > 0) {
     await fs.ensureDir(path);
     for (var i = 0; i < files.length; i++) {
       var id = files[i].id;
       var name = files[i].name;
       var replace = false;
-      if(name.slice(-2) == "__"){
+      if (name.slice(-2) == "__") {
         replace = true;
         name = files[i].name.replace("__", "");
       }
@@ -115,27 +121,31 @@ var getAllRoots = async (drive, folderId, path, is_replace) => {
     console.log(path);
     var download_data = await download(drive, folderId, path);
     var dataStr = "";
-    if (fs.existsSync(path)){
+    if (fs.existsSync(path)) {
       await fs.copy(path, `${path}.${moment().format('YYYY-MM-DD_h:mm')}`);
     }
     if (fs.existsSync(path) && is_replace) {
       dataStr = await getExistFileData(path, download_data);
     } else {
       dataStr = download_data;
-      if(is_replace){
+      if (is_replace) {
         var begin = "# - begin -";
         var end = "# - end -";
         dataStr = `${begin}\n${dataStr}\n${end}\n`;
       }
     }
     await fs.writeFile(path, dataStr);
+    if (path.indexOf(`/home/${username}`) == 0) {
+      // console.log(`chown -R ${username}.${username} ${path}`);
+      exec(`chown -R ${username}.${username} ${path}`);
+    }
   } else {
   }
 }
 
 var getExistFileData = async (path, download_data) => {
   return new Promise((resolve, reject) => {
-    fs.readFile(path,(err, data) => {
+    fs.readFile(path, (err, data) => {
       if (err) return reject(err);
       else {
         var begin = "# - begin -";
